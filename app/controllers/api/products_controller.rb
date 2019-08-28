@@ -7,7 +7,7 @@ class Api::ProductsController < ApplicationController
   end
 
   def product_individual
-    @product = Product.all[0]   
+    @product = Product.all[1]   
     # @message = "sanity check"
     render "product_individual.json.jb"
   end
