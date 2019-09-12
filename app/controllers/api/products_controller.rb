@@ -1,8 +1,33 @@
 class Api::ProductsController < ApplicationController
 
+  before_action :authenticate_admin, except: [:index, :show]
+  
   def index
+    
     @products = Product.all
-    # @message = "sanity check"
+    
+    if params[:search]
+      @products = @products.where("name iLike ?", "%#{params[:search]}%")
+    end
+
+    if params[:discount]
+      @products = @products.where("price < ?", 10)
+    end
+
+    if params[:category]
+      category = Category.find_by("name iLike?", params[:category])
+      @products = category.products
+      
+    end
+
+    if params[:sort] == "price" && params[:sort_order] == "asc"
+      @products = @products.order(:price)
+    elsif params[:sort] == "price" && params[:sort_order] == "desc"
+      @products = @products.order(price: :desc)
+    else
+      @products = @products.order(:id)
+    end
+    
     render "index.json.jb"
   end
 
@@ -19,12 +44,14 @@ class Api::ProductsController < ApplicationController
       id: params[:id],
       name: params[:name],
       price: params[:price],
-      image_url: params[:image_url],
       description: params[:description]
       )
 
-    @product.save
-    render "create.json.jb"
+    if @product.save
+      render "show.json.jb"
+    else 
+      render json: {errors: @product.errors.full_messages}, status: 422
+    end
   end
 
   def update
@@ -32,11 +59,13 @@ class Api::ProductsController < ApplicationController
 
     @product.name = params[:name] || @product.name
     @product.price = params[:price].to_i || @product.price
-    @product.image_url = params[:image_url] || @product.image_url
     @product.description = params[:description] || @product.description
 
-    @product.save
-    render "show.json.jb"
+    if @product.save
+      render "show.json.jb"
+    else  
+      render json: {errors: @product.errors.full_messages}, status: 422
+    end
   end
 
   def destroy
