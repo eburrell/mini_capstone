@@ -1,0 +1,9 @@
+<h1>Show Product</h1>
+<h2><% @product.name %></h2>
+  <h3>Name: <%= @product.name %> </h1>
+  <h3>Price: <%= @product.price %> </h1>
+  <h3>Description: <%= @product.description %> </h1>
+  <h3>Supplier_id: <%= @product.supplier_id %> </h1>
+
+ <a href="/products/<%= @product.id %>/edit">Edit</a>
+
